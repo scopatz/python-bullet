@@ -3,16 +3,24 @@ import os
 import numpy as np
 from xdress.utils import apiname
 
+
 # config
 PACKAGE_NAME = 'bullet'
-SOURCE_DIR = os.getcwd()
+SOURCE_DIR = os.path.join(os.getcwd(), 'src')
 INCLUDE_DIRS = [s[0] for s in os.walk(SOURCE_DIR)] + [np.get_include()]
 ALL_FILES = []
 [ALL_FILES.extend(os.path.join(d[0], f) for f in d[2]) for d in os.walk(SOURCE_DIR)]
-SOURCE_FILES = [f for f in ALL_FILES if f.endswith('.cpp') and not 'DX11' in f and not 'OpenCL' in f and not 'BulletMultiThreaded' in f]
-INC_FILES = [f for f in ALL_FILES if f.endswith('.h') and not 'DX11' in f and not 'OpenCL' in f and not 'BulletMultiThreaded' in f]
+EXCLUDES = ['DX11', 'OpenCL', 'BulletMultiThreaded']
+def contains_excluded(path):
+    for e in EXCLUDES:
+        if e in path:
+            return True
+    return False
+SOURCE_FILES = [f for f in ALL_FILES if f.endswith('.cpp') and not contains_excluded(f)]
+INC_FILES = [f for f in ALL_FILES if f.endswith('.h') and not contains_excluded(f)]
 
 # execution
+includes = [SOURCE_DIR]
 package = PACKAGE_NAME     # top-level python package name
 packagedir = PACKAGE_NAME  # location of the python package
 API_NAMES = [apiname('*', (f, f.replace('.cpp', '.h')), incfiles=INC_FILES) for f in SOURCE_FILES]

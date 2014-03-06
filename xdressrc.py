@@ -16,14 +16,20 @@ def contains_excluded(path):
         if e in path:
             return True
     return False
-SOURCE_FILES = [f for f in ALL_FILES if f.endswith('.cpp') and not contains_excluded(f)]
+FORCE_SOURCE_FILES = [
+    os.path.join(SOURCE_DIR, 'LinearMath', 'btAlignedObjectArray.h'),
+]
+SOURCE_FILES = [f for f in ALL_FILES if f.endswith('.cpp') and not contains_excluded(f)] + FORCE_SOURCE_FILES
 INC_FILES = [f for f in ALL_FILES if f.endswith('.h') and not contains_excluded(f)]
 
 # execution
 includes = [SOURCE_DIR]
 package = PACKAGE_NAME     # top-level python package name
 packagedir = PACKAGE_NAME  # location of the python package
-API_NAMES = [apiname('*', (f, f.replace('.cpp', '.h')), incfiles=INC_FILES) for f in SOURCE_FILES]
+API_NAMES = (
+    [apiname('*', (f, f.replace('.cpp', '.h')), incfiles=INC_FILES) for f in SOURCE_FILES] +
+    [apiname('*', (f, f), incfiles=INC_FILES) for f in FORCE_SOURCE_FILES]
+)
 
 extra_types = 'extra_types'
 
